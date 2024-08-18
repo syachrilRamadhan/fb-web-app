@@ -3,7 +3,7 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import React, { useState } from "react";
 
-const Registrasi = () => {
+const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
@@ -73,7 +73,7 @@ const Registrasi = () => {
       <div className="container mx-auto">
         <div className="flex justify-center items-center h-[100vh]">
           <div className="w-full max-w-[400px] bg-white p-8 rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold mb-6 text-gray-600 text-center">Daftar Akun</h2>
+            <h2 className="text-2xl font-bold mb-6 text-gray-600 text-center">Login</h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
                 <label className="block text-gray-600 text-sm font-bold mb-2">Username</label>
@@ -87,10 +87,6 @@ const Registrasi = () => {
                 {usernameError && <p className="text-red-500 text-sm ml-1 mt-1">{usernameError}</p>}
               </div>
               <div className="mb-3">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                <input className="w-full px-3 py-2 text-white bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" type="email" placeholder="email kamu" />
-              </div>
-              <div className="mb-3">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
                 <input
                   className="w-full px-3 py-2 text-white bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
@@ -100,37 +96,18 @@ const Registrasi = () => {
                   onChange={handlePasswordChange}
                 />
               </div>
-              <div className="mb-3">
-                <label className="block text-gray-700 text-sm font-bold mb-2">Konfirmasi Password</label>
-                <input
-                  className="w-full px-3 py-2 text-white bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="ulangi password"
-                  value={confirmPassword}
-                  onChange={handleConfirmPasswordChange}
-                />
-                {passwordError && <p className="text-red-500 text-sm ml-1 mt-1">{passwordError}</p>}
-              </div>
               <div className="flex items-center space-x-2 mb-3 ml-1">
                 <Checkbox id="show" onCheckedChange={(checked) => setShowPassword(checked)} checked={showPassword} />
                 <label htmlFor="show" className="text-sm font-medium text-gray-600 leading-none">
                   Lihat password
                 </label>
               </div>
-              <div className="text-gray-600 font-italic text-[12px] md:text-[15px] font-semibold">
-                <p>
-                  <i>*Password harus mengandung kombinasi angka, huruf, dan huruf kapital !</i>
-                </p>
-              </div>
               <button type="submit" className="w-full mt-3 bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent">
-                Daftar
+                Login
               </button>
               <div className="text-gray-600 text-center mt-2 text-[12px] md:text-[15px] font-semibold">
                 <p>
-                  Sudah punya akun?{" "}
-                  <a href="/login" className="text-sky-600">
-                    Login
-                  </a>
+                  Belum punya akun? <a href="/registrasi" className="text-sky-600">Daftar Sekarang</a>
                 </p>
               </div>
             </form>
@@ -141,4 +118,4 @@ const Registrasi = () => {
   );
 };
 
-export default Registrasi;
+export default Login;
