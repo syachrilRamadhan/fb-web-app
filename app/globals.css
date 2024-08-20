@@ -7,7 +7,7 @@
     font-family: var(--font-fredoka);
   }
   body {
-    @apply font-primary bg-sky-700 text-white leading-loose;
+    @apply font-primary bg-sky-600 text-white leading-loose;
   }
   .h1 {
     @apply text-[48px] xl:text-[80px] leading-[1.1] font-semibold;

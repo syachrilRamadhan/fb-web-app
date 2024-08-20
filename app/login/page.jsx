@@ -2,8 +2,10 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const Login = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
@@ -11,6 +13,8 @@ const Login = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
@@ -53,7 +57,7 @@ const Login = () => {
     return { usernameError: error, passwordError };
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
     const { usernameError, passwordError } = validateForm();
@@ -66,6 +70,31 @@ const Login = () => {
       setPasswordError("");
     }
     setIsSubmitting(false);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      setShowSuccessPopup(true);
+
+      setTimeout(() => {
+        router.push("/");
+      }, 2000);
+
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setFormError(error.message || "Gagal melakukan pendaftaran. Silakan coba lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -78,6 +107,7 @@ const Login = () => {
               <div className="mb-3">
                 <label className="block text-gray-600 text-sm font-bold mb-2">Username</label>
                 <input
+                  name="username"
                   className={`w-full px-3 py-2 text-white bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${usernameError ? "border-red-500" : "border-gray-300"}`}
                   type="text"
                   placeholder="username kamu"
@@ -89,6 +119,7 @@ const Login = () => {
               <div className="mb-3">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
                 <input
+                  name="password"
                   className="w-full px-3 py-2 text-white bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   type={showPassword ? "text" : "password"}
                   placeholder="password kamu"
@@ -107,10 +138,21 @@ const Login = () => {
               </button>
               <div className="text-gray-600 text-center mt-2 text-sm font-semibold">
                 <p>
-                  Belum punya akun? <a href="/registrasi" className="text-sky-600">Daftar Sekarang</a>
+                  Belum punya akun?{" "}
+                  <a href="/registrasi" className="text-sky-600">
+                    Daftar Sekarang
+                  </a>
                 </p>
               </div>
             </form>
+            {showSuccessPopup && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg">
+                  <h3 className="text-lg text-center font-semibold text-green-600">Login Berhasil!</h3>
+                  <p className="mt-2 text-gray-600 text-center">Selamat Berbelanja.</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -111,7 +111,7 @@ const Registrasi = () => {
       setTimeout(() => {
         router.push("/login");
       }, 3000);
-      
+
     } catch (error) {
       console.error("Fetch error:", error);
       setFormError(error.message || "Gagal melakukan pendaftaran. Silakan coba lagi.");
@@ -193,8 +193,8 @@ const Registrasi = () => {
             {showSuccessPopup && (
               <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
                 <div className="bg-white p-6 rounded-lg shadow-lg">
-                  <h3 className="text-lg font-semibold text-green-600">Registrasi Berhasil!</h3>
-                  <p className="mt-2 text-gray-600">Akun kamu berhasil dibuat, silahkan login!</p>
+                  <h3 className="text-lg text-center font-semibold text-green-600">Daftar Akun Berhasil!</h3>
+                  <p className="mt-2 text-gray-600 text-center">Akun kamu berhasil dibuat, silahkan login!</p>
                 </div>
               </div>
             )}
