@@ -16,6 +16,7 @@ const Registrasi = () => {
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
 
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
@@ -105,7 +106,12 @@ const Registrasi = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      router.push("/login");
+      setShowSuccessPopup(true);
+
+      setTimeout(() => {
+        router.push("/login");
+      }, 3000);
+      
     } catch (error) {
       console.error("Fetch error:", error);
       setFormError(error.message || "Gagal melakukan pendaftaran. Silakan coba lagi.");
@@ -166,9 +172,9 @@ const Registrasi = () => {
                   Lihat password
                 </label>
               </div>
-              <div className="text-gray-600 font-italic text-[12px] md:text-[15px] font-semibold">
+              <div className="text-gray-600 font-italic text-[14px] md:text-[15px] font-semibold">
                 <p>
-                  <i>*Password harus mengandung kombinasi angka, huruf, dan huruf kapital !</i>
+                  <i>*Password harus mengandung kombinasi angka, huruf, dan huruf kapital!</i>
                 </p>
               </div>
               {formError && <p className="text-red-500 text-sm mt-2">{formError}</p>}
@@ -184,6 +190,14 @@ const Registrasi = () => {
                 </p>
               </div>
             </form>
+            {showSuccessPopup && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                <div className="bg-white p-6 rounded-lg shadow-lg">
+                  <h3 className="text-lg font-semibold text-green-600">Registrasi Berhasil!</h3>
+                  <p className="mt-2 text-gray-600">Akun kamu berhasil dibuat, silahkan login!</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
