@@ -1,16 +1,21 @@
 "use client";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 const Registrasi = () => {
+  const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState("");
 
   const handleUsernameChange = (event) => {
     setUsername(event.target.value);
@@ -24,10 +29,19 @@ const Registrasi = () => {
     setConfirmPassword(event.target.value);
   };
 
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+
   //vaalidasi form
   const validateForm = () => {
     let error = "";
     let passwordError = "";
+    let emailError = "";
+
+    //hapus whitespace
+    const trimmedPassword = password.trim();
+    const trimmedConfirmPassword = confirmPassword.trim();
 
     //cek validasi username
     if (username.length < 5) {
@@ -38,11 +52,17 @@ const Registrasi = () => {
       error = "Username tidak boleh mengandung spasi.";
     }
 
+    // Validate email
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      emailError = "Email tidak valid.";
+    }
+
     //cek validasi password
     const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{5,50}$/;
-    if (!passwordPattern.test(password)) {
+    if (!passwordPattern.test(trimmedPassword)) {
       passwordError = "Password harus mengandung kombinasi angka, huruf, dan huruf kapital !";
-    } else if (password !== confirmPassword) {
+    } else if (trimmedPassword !== trimmedConfirmPassword) {
       passwordError = "Password kamu tidak cocok.";
     } else if (password.length < 5) {
       passwordError = "Password minimal 5 karakter.";
@@ -50,22 +70,48 @@ const Registrasi = () => {
       passwordError = "Password maksimal 50 karakter.";
     }
 
-    return { usernameError: error, passwordError };
+    return { usernameError: error, passwordError, emailError };
   };
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     setIsSubmitting(true);
-    const { usernameError, passwordError } = validateForm();
+
+    const { usernameError, passwordError, emailError } = validateForm();
 
     if (usernameError || passwordError) {
       setUsernameError(usernameError);
       setPasswordError(passwordError);
-    } else {
-      setUsernameError("");
-      setPasswordError("");
+      setEmailError(emailError);
+      setIsSubmitting(false);
+      return;
     }
-    setIsSubmitting(false);
+
+    setUsernameError("");
+    setPasswordError("");
+    setEmailError("");
+    setFormError("");
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/register`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ username, email, password }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      router.push("/login");
+    } catch (error) {
+      console.error("Fetch error:", error);
+      setFormError(error.message || "Gagal melakukan pendaftaran. Silakan coba lagi.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -80,6 +126,7 @@ const Registrasi = () => {
                 <input
                   className={`w-full px-3 py-2 text-white bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent ${usernameError ? "border-red-500" : "border-gray-300"}`}
                   type="text"
+                  name="username"
                   placeholder="username kamu"
                   value={username}
                   onChange={handleUsernameChange}
@@ -88,11 +135,13 @@ const Registrasi = () => {
               </div>
               <div className="mb-3">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Email</label>
-                <input className="w-full px-3 py-2 text-white bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" type="email" placeholder="email kamu" />
+                <input name="email" value={email} onChange={handleEmailChange} className="w-full px-3 py-2 text-white bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent" type="email" placeholder="email kamu" />
+                {emailError && <p className="text-red-500 text-sm ml-1 mt-1">{emailError}</p>}
               </div>
               <div className="mb-3">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
                 <input
+                  name="password"
                   className="w-full px-3 py-2 text-white bg-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent"
                   type={showPassword ? "text" : "password"}
                   placeholder="password kamu"
@@ -122,10 +171,11 @@ const Registrasi = () => {
                   <i>*Password harus mengandung kombinasi angka, huruf, dan huruf kapital !</i>
                 </p>
               </div>
-              <button type="submit" className="w-full mt-3 bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent">
-                Daftar
+              {formError && <p className="text-red-500 text-sm mt-2">{formError}</p>}
+              <button type="submit" className="w-full mt-3 bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent" disabled={isSubmitting}>
+                {isSubmitting ? "Memproses..." : "Daftar"}
               </button>
-              <div className="text-gray-600 text-center mt-2 text-[12px] md:text-[15px] font-semibold">
+              <div className="text-gray-600 text-center mt-2 text-sm font-semibold">
                 <p>
                   Sudah punya akun?{" "}
                   <a href="/login" className="text-sky-600">

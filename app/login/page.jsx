@@ -105,7 +105,7 @@ const Login = () => {
               <button type="submit" className="w-full mt-3 bg-sky-600 text-white py-2 px-4 rounded-lg hover:bg-gray-600 transition-all duration-500 ease-in-out focus:outline-none focus:ring-2 focus:ring-accent">
                 Login
               </button>
-              <div className="text-gray-600 text-center mt-2 text-[12px] md:text-[15px] font-semibold">
+              <div className="text-gray-600 text-center mt-2 text-sm font-semibold">
                 <p>
                   Belum punya akun? <a href="/registrasi" className="text-sky-600">Daftar Sekarang</a>
                 </p>
