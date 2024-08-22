@@ -1,91 +1,52 @@
 "use client";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+
+const formatCurrency = (amount) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+  }).format(amount);
+};
+
+const ITEMS_PER_PAGE = 10;
+
 const Home = () => {
-  const akiKering = {
-    title: "Daftar Aki Kering",
-    description: "I have experienced many different jobs, before finally switch my career to become a software developer and entering the technology industry.",
-    items: [
-      {
-        id: 1,
-        name: "Aki GS MF NS 60",
-        description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus, error.",
-        price: "900000",
-      },
-      {
-        id: 2,
-        name: "Aki GS MF NS 40Z",
-        description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus, error.",
-        price: "750000",
-      },
-      {
-        id: 3,
-        name: "Aki GS MF NS 40",
-        description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus, error.",
-        price: "700000",
-      },
-    ],
+  const [products, setProducts] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products`);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setProducts(data.data);
+        console.log("Fetched data:", data);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const indexOfLastProduct = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstProduct = indexOfLastProduct - ITEMS_PER_PAGE;
+  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+
+  const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
   };
-
-  const akiBasah = {
-    title: "List Aki Basah",
-    description: "I have experienced many different jobs, before finally switch my career to become a software developer and entering the technology industry.",
-    items: [
-      {
-        id: 1,
-        name: "Aki GS Hybrid NS 60",
-        description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus, error.",
-        price: "850000",
-      },
-      {
-        id: 2,
-        name: "Aki GS Hybrid NS 40Z",
-        description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus, error.",
-        price: "750000",
-      },
-      {
-        id: 3,
-        name: "Aki Incoe Gold NS 60",
-        description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus, error.",
-        price: "650000",
-      },
-    ],
-  };
-
-  const akiMotor = {
-    title: "List Aki Motor",
-    description: "I have experienced many different jobs, before finally switch my career to become a software developer and entering the technology industry.",
-    items: [
-      {
-        id: 1,
-        name: "GS GTZ5S",
-        description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus, error.",
-        price: "250000",
-      },
-      {
-        id: 2,
-        name: "GS GTZ6V",
-        description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus, error.",
-        price: "350000",
-      },
-      {
-        id: 3,
-        name: "YTZ7V",
-        description: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Necessitatibus, error.",
-        price: "400000",
-      },
-    ],
-  };
-
-  // const [product, setProduct] = useState(products[0]);
-
-  // const handleSlideChange = (swiper) => {
-  //   const curIndex = swiper.activeIndex;
-  //   setProduct(products[curIndex]);
-  // };
 
   return (
     <motion.div
@@ -94,87 +55,38 @@ const Home = () => {
         opacity: 1,
         transition: { delay: 2.4, duration: 0.4, ease: "easeIn" },
       }}
-      className="min-h-[80vh] flex items-center justify-center py-12 xl:py-0"
+      className="min-h-[80vh] flex flex-col items-center py-12 xl:py-0"
     >
-      <div className="container mx-auto">
-        <Tabs defaultValue="akiKerring" className="flex flex-col xl:flex-row gap-[60px]">
-          <TabsList className="flex flex-col w-full max-w-[380px] mx-auto xl:mx-0 gap-6">
-            <TabsTrigger value="akiKering">Aki Kering</TabsTrigger>
-            <TabsTrigger value="akiBasah">Aki Basah</TabsTrigger>
-            <TabsTrigger value="akiMotor">Aki Motor</TabsTrigger>
-          </TabsList>
-          <div className="min-h-[70vh] w-full">
-            <TabsContent value="akiKering" className="w-full">
-              <div className="flex flex-col gap-[30px] text-center xl:text-left">
-                <h3 className="text-4xl font-semibold">{akiKering.title}</h3>
-                <ScrollArea className="h-[400px]">
-                  <ul className="grid grid-cols-1 lg:grid-cols-2 gap-[30px]">
-                    {akiKering.items.map((item, index) => {
-                      return (
-                        <li key={index} className="bg-sky-800 h-[300px] rounded-xl flex flex-col justify-center items-center lg:items-start gap-1">
-                          <Image src="/public/ns60mf.jpeg" alt="" width={130} height={130}/>
-                          <span className="text-sky-600">{item.name}</span>
-                          <h3 className="text-xl max-w-[260px] min-h-[60px] text-center lg:text-left">{item.description}</h3>
-                          <div className="flex items-center gap-3">
-                            <span className="w-[6px] h-[6px] rounded-full bg-sky-600"></span>
-                            <p className="text-sky-600">Rp.{item.price}</p>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </ScrollArea>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-screen-lg mx-auto p-6 rounded-lg shadow-md">
+        {currentProducts.map((product) => (
+          <div key={product.id} className="border border-sky-600 p-7 rounded-lg shadow-xl hover:shadow-lg transition-shadow duration-300 ease-in-out bg-white">
+            <Image src="/path/to/default-image.jpg" alt={product.nama_produk} width={300} height={300} className="w-full h-auto object-cover rounded-t-lg text-sky-600" />
+            <div className="mt-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-sky-600">{product.nama_produk}</h2>
+                <p className="text-lg text-gray-800">{formatCurrency(product.price)}</p>
               </div>
-            </TabsContent>
-            <TabsContent value="akiBasah" className="w-full">
-              <div className="flex flex-col gap-[30px] text-center xl:text-left">
-                <h3 className="text-4xl font-bold">{akiBasah.title}</h3>
-                <ScrollArea className="h-[400px]">
-                  <ul className="grid grid-cols-1 lg:grid-cols-2 gap-[30px]">
-                    {akiBasah.items.map((item, index) => {
-                      return (
-                        <li key={index} className="bg-[#232329] h-[185px] py-6 px-10 rounded-xl flex flex-col justify-center items-center lg:items-start gap-1">
-                          <span className="text-accent">{item.name}</span>
-                          <h3 className="text-xl max-w-[260px] min-h-[60px] text-center lg:text-left">{item.description}</h3>
-                          <div className="flex items-center gap-3">
-                            <span className="w-[6px] h-[6px] rounded-full bg-accent"></span>
-                            <p className="text-white/60">{item.price}</p>
-                          </div>
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </ScrollArea>
-              </div>
-            </TabsContent>
-            <TabsContent value="akiMotor" className="w-full h-full">
-              <div className="flex flex-col gap-[30px]">
-                <div className="flex flex-col gap-[30px] text-center lg:text-left">
-                  <h3 className="text-4xl font-bold">{akiMotor.title}</h3>
-                  {/* <p className="max-w-[600px] text-white/60 mx-auto xl:mx-0">{skills.description}</p> */}
+              <div className="flex justify-between mt-3">
+                <div className="">
+                  <Button className="border border-primary p-5 bg-sky-600 text-primary hover:bg-primary hover:text-white hover:border-white transition-all duration-500">Detail</Button>
                 </div>
-                <ul className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 xl:gap-[30px]">
-                  {akiMotor.items.map((item, index) => {
-                    return (
-                      <li key={index}>
-                        <TooltipProvider delayDuration={100}>
-                          <Tooltip>
-                            <TooltipTrigger className="w-full h-[150px] bg-[#232329] rounded-xl flex justify-center items-center group">
-                              <div className="text-6xl group-hover:text-accent transition-all duration-300">{item.name}</div>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>{item.price}</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </li>
-                    );
-                  })}
-                </ul>
+                <div className="">
+                  <Button className="border border-primary p-5 w-[70px] bg-accent text-primary  hover:bg-primary hover:text-white hover:border-white transition-all duration-500">Beli</Button>
+                </div>
               </div>
-            </TabsContent>
+            </div>
           </div>
-        </Tabs>
+        ))}
+      </div>
+
+      <div className="mt-6 flex justify-center mx-2">
+        <Button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">
+          Sebelumnya
+        </Button>
+        <span className="px-4 py-2 text-primary text-sm md:text-lg">
+          Halaman {currentPage} dari {totalPages}
+        </span>
+        <Button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">Selanjutnya</Button>
       </div>
     </motion.div>
   );
