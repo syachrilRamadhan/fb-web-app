@@ -1,9 +1,11 @@
 "use client";
+
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Footer from "@/components/Footer";
+import Modal from "@/components/Modal";
 
 const formatCurrency = (amount) => {
   return new Intl.NumberFormat("id-ID", {
@@ -40,6 +42,8 @@ const Home = () => {
   const indexOfLastProduct = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstProduct = indexOfLastProduct - ITEMS_PER_PAGE;
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
 
@@ -48,6 +52,16 @@ const Home = () => {
       setCurrentPage(newPage);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
+  };
+
+  const openModal = (productId) => {
+    setSelectedProductId(productId);
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+    setSelectedProductId(null);
   };
 
   return (
@@ -62,7 +76,7 @@ const Home = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-screen-lg mx-auto p-6 rounded-lg shadow-md">
         {currentProducts.map((product) => (
           <div key={product.id} className="border border-sky-600 p-7 rounded-lg shadow-xl hover:shadow-lg transition-shadow duration-300 ease-in-out bg-white">
-            <Image src="/path/to/default-image.jpg" alt={product.nama_produk} width={300} height={300} className="w-full h-auto object-cover rounded-t-lg text-sky-600" />
+            <Image src="/ns60mf.jpeg" alt={product.nama_produk} width={300} height={300} className="w-full h-auto object-cover rounded-t-lg text-sky-600" />
             <div className="mt-4">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-semibold text-sky-600">{product.nama_produk}</h2>
@@ -70,7 +84,9 @@ const Home = () => {
               </div>
               <div className="flex justify-between mt-3">
                 <div className="">
-                  <Button className="border border-primary p-5 bg-sky-600 text-primary hover:bg-primary hover:text-white hover:border-white transition-all duration-500">Detail</Button>
+                  <Button onClick={() => openModal(product.id)} className="border border-primary p-5 bg-sky-600 text-primary hover:bg-primary hover:text-white hover:border-white transition-all duration-500">
+                    Detail
+                  </Button>
                 </div>
                 <div className="">
                   <Button className="border border-primary p-5 w-[70px] bg-accent text-primary  hover:bg-primary hover:text-white hover:border-white transition-all duration-500">Beli</Button>
@@ -85,7 +101,7 @@ const Home = () => {
         <Button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">
           Sebelumnya
         </Button>
-        <span className="px-4 py-2 text-primary text-sm md:text-lg">
+        <span className="px-4 py-2 text-white text-sm md:text-lg">
           Halaman {currentPage} dari {totalPages}
         </span>
         <Button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">
@@ -93,6 +109,7 @@ const Home = () => {
         </Button>
       </div>
       <Footer />
+      <Modal isOpen={isModalOpen} onClose={closeModal} id={selectedProductId} />
     </motion.div>
   );
 };
