@@ -10,7 +10,6 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
@@ -22,39 +21,6 @@ const Login = () => {
 
   const handlePasswordChange = (event) => {
     setPassword(event.target.value);
-  };
-
-  const handleConfirmPasswordChange = (event) => {
-    setConfirmPassword(event.target.value);
-  };
-
-  //vaalidasi form
-  const validateForm = () => {
-    let error = "";
-    let passwordError = "";
-
-    //cek validasi username
-    if (username.length < 5) {
-      error = "Username minimal 5 karakter.";
-    } else if (username.length > 40) {
-      error = "Username maksimal 40 karakter.";
-    } else if (/\s/.test(username)) {
-      error = "Username tidak boleh mengandung spasi.";
-    }
-
-    //cek validasi password
-    const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{5,50}$/;
-    if (!passwordPattern.test(password)) {
-      passwordError = "Password harus mengandung kombinasi angka, huruf, dan huruf kapital !";
-    } else if (password !== confirmPassword) {
-      passwordError = "Password kamu tidak cocok.";
-    } else if (password.length < 5) {
-      passwordError = "Password minimal 5 karakter.";
-    } else if (password.length > 50) {
-      passwordError = "Password maksimal 50 karakter.";
-    }
-
-    return { usernameError: error, passwordError };
   };
 
   const handleSubmit = async (event) => {
@@ -79,22 +45,37 @@ const Login = () => {
         body: JSON.stringify({ username, password }),
       });
 
+      const data = await response.json();
+
+      if (response.ok) {
+        setShowSuccessPopup(true);
+
+        setTimeout(() => {
+          router.push("/");
+        }, 2000);
+      } else {
+        setUsernameError(data.message);
+        setPasswordError(data.message);
+      }
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-
-      setShowSuccessPopup(true);
-
-      setTimeout(() => {
-        router.push("/");
-      }, 2000);
-
     } catch (error) {
-      console.error("Fetch error:", error);
       setFormError(error.message || "Gagal melakukan pendaftaran. Silakan coba lagi.");
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const validateForm = () => {
+    let error = "";
+    let passwordError = "";
+    let usernameError = "";
+
+    //cek validasi password
+
+    return { usernameError: error, passwordError };
   };
 
   return (
@@ -114,7 +95,6 @@ const Login = () => {
                   value={username}
                   onChange={handleUsernameChange}
                 />
-                {usernameError && <p className="text-red-500 text-sm ml-1 mt-1">{usernameError}</p>}
               </div>
               <div className="mb-3">
                 <label className="block text-gray-700 text-sm font-bold mb-2">Password</label>
@@ -126,6 +106,7 @@ const Login = () => {
                   value={password}
                   onChange={handlePasswordChange}
                 />
+                {passwordError && <p className="text-red-500 text-sm ml-1 mt-1">{passwordError}</p>}
               </div>
               <div className="flex items-center space-x-2 mb-3 ml-1">
                 <Checkbox id="show" onCheckedChange={(checked) => setShowPassword(checked)} checked={showPassword} />
