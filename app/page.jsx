@@ -2,29 +2,26 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import ProductCard from "@/components/ProductCard";
 import Footer from "@/components/Footer";
 import Modal from "@/components/Modal";
-
-const formatCurrency = (amount) => {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-};
+import { Button } from "@/components/ui/button";
+import { FaSearch } from "react-icons/fa";
+import { Input } from "@/components/ui/input";
 
 const ITEMS_PER_PAGE = 9;
 
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [selectedProductId, setSelectedProductId] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products`);
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products?search=${encodeURIComponent(searchQuery)}`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -37,14 +34,11 @@ const Home = () => {
     };
 
     fetchProducts();
-  }, []);
+  }, [searchQuery]);
 
   const indexOfLastProduct = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstProduct = indexOfLastProduct - ITEMS_PER_PAGE;
   const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
-  const [selectedProductId, setSelectedProductId] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const totalPages = Math.ceil(products.length / ITEMS_PER_PAGE);
 
   const handlePageChange = (newPage) => {
@@ -64,6 +58,11 @@ const Home = () => {
     setSelectedProductId(null);
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+    setCurrentPage(1);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -73,27 +72,15 @@ const Home = () => {
       }}
       className="min-h-[80vh] flex flex-col items-center py-12 xl:py-0"
     >
+      <div className="w-full max-w-screen-lg mx-auto px-6 text-primary relative">
+        <div className="relative">
+          <FaSearch className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500" />
+          <Input type="text" placeholder="Cari produk..." value={searchQuery} onChange={handleSearchChange} className="pl-10 mb-4 p-2 rounded-md" />
+        </div>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-screen-lg mx-auto p-6 rounded-lg shadow-md">
         {currentProducts.map((product) => (
-          <div key={product.id} className="border border-sky-600 p-7 rounded-lg shadow-xl hover:shadow-lg transition-shadow duration-300 ease-in-out bg-white">
-            <Image src="/ns60mf.jpeg" alt={product.nama_produk} width={300} height={300} className="w-full h-auto object-cover rounded-t-lg text-sky-600" />
-            <div className="mt-4">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-sky-600">{product.nama_produk}</h2>
-                <p className="text-lg text-gray-800">{formatCurrency(product.price)}</p>
-              </div>
-              <div className="flex justify-between mt-3">
-                <div className="">
-                  <Button onClick={() => openModal(product.id)} className="border border-primary p-5 bg-sky-600 text-primary hover:bg-primary hover:text-white hover:border-white transition-all duration-500">
-                    Detail
-                  </Button>
-                </div>
-                <div className="">
-                  <Button className="border border-primary p-5 w-[70px] bg-accent text-primary  hover:bg-primary hover:text-white hover:border-white transition-all duration-500">Beli</Button>
-                </div>
-              </div>
-            </div>
-          </div>
+          <ProductCard key={product.id} product={product} onOpenModal={openModal} />
         ))}
       </div>
 
@@ -101,7 +88,7 @@ const Home = () => {
         <Button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">
           Sebelumnya
         </Button>
-        <span className="px-4 py-2 text-white text-sm md:text-lg">
+        <span className="px-2 py-2 text-white text-[13px] md:text-lg">
           Halaman {currentPage} dari {totalPages}
         </span>
         <Button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">

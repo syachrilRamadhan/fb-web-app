@@ -149,7 +149,7 @@ const Login = () => {
               <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
                 <div className="bg-white p-6 rounded-lg shadow-lg">
                   <h3 className="text-lg text-center font-semibold text-green-600">Login Berhasil!</h3>
-                  <p className="mt-2 text-gray-600 text-center">Selamat Berbelanja.</p>
+                  <p className="mt-2 text-gray-600 text-center">Selamat Berbelanja 💰</p>
                 </div>
               </div>
             )}
