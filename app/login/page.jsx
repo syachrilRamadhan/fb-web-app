@@ -71,9 +71,6 @@ const Login = () => {
   const validateForm = () => {
     let error = "";
     let passwordError = "";
-    let usernameError = "";
-
-    //cek validasi password
 
     return { usernameError: error, passwordError };
   };

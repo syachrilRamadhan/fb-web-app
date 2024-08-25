@@ -8,6 +8,7 @@ import Modal from "@/components/Modal";
 import { Button } from "@/components/ui/button";
 import { FaSearch } from "react-icons/fa";
 import { Input } from "@/components/ui/input";
+import Spinner from "@/components/ui/spinner";
 
 const ITEMS_PER_PAGE = 9;
 
@@ -17,9 +18,11 @@ const Home = () => {
   const [selectedProductId, setSelectedProductId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setIsLoading(true);
       try {
         const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/products?search=${encodeURIComponent(searchQuery)}`);
         if (!response.ok) {
@@ -30,6 +33,8 @@ const Home = () => {
         console.log("Fetched data:", data);
       } catch (error) {
         console.error("Error fetching products:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -78,23 +83,31 @@ const Home = () => {
           <Input type="text" placeholder="Cari produk..." value={searchQuery} onChange={handleSearchChange} className="pl-10 mb-4 p-2 rounded-md" />
         </div>
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-screen-lg mx-auto p-6 rounded-lg shadow-md">
-        {currentProducts.map((product) => (
-          <ProductCard key={product.id} product={product} onOpenModal={openModal} />
-        ))}
-      </div>
+      {isLoading ? (
+        <div className="flex justify-center items-center w-full h-48">
+          <Spinner />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 w-full max-w-screen-lg mx-auto p-6 rounded-lg shadow-md">
+            {currentProducts.map((product) => (
+              <ProductCard key={product.id} product={product} onOpenModal={openModal} />
+            ))}
+          </div>
 
-      <div className="mt-6 mb-2 flex justify-center mx-2">
-        <Button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">
-          Sebelumnya
-        </Button>
-        <span className="px-2 py-2 text-white text-[13px] md:text-lg">
-          Halaman {currentPage} dari {totalPages}
-        </span>
-        <Button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">
-          Selanjutnya
-        </Button>
-      </div>
+          <div className="mt-6 mb-2 flex justify-center mx-2">
+            <Button onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">
+              Sebelumnya
+            </Button>
+            <span className="px-2 py-2 text-white text-[13px] md:text-lg">
+              Halaman {currentPage} dari {totalPages}
+            </span>
+            <Button onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages} className="px-4 py-2 border bg-primary text-white border-white rounded-lg mr-2 disabled:opacity-50">
+              Selanjutnya
+            </Button>
+          </div>
+        </>
+      )}
       <Footer />
       <Modal isOpen={isModalOpen} onClose={closeModal} id={selectedProductId} />
     </motion.div>
